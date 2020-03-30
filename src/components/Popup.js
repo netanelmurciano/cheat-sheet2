@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import firebase from '../firebase';
 import {Button, Form} from 'react-bootstrap';
+import SheetLists from "./SheetLists";
 
 
 class Popup extends Component {
@@ -8,7 +9,7 @@ class Popup extends Component {
         super();
         this.state = {
             sheets: [],
-            language: '',
+            language: 'react',
             name: '',
             code: '',
             link: '',
@@ -22,33 +23,33 @@ class Popup extends Component {
         let that = this;
         let db = firebase.firestore();
         db.collection("sheets").get()
-            .then(function(response) {
+            .then(function (response) {
                 response.forEach((doc) => {
                     let sheets = doc.data().data;
-                    that.setState({sheets:[...that.state.sheets, sheets]});
+                    that.setState({sheets: [...that.state.sheets, sheets]});
                 });
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error(error);
             });
-
-
     }
 
     // Catch form values
     handleAddSheet(e) {
-        this.setState({[e.target.name] : e.target.value});
+        this.setState({[e.target.name]: e.target.value});
     }
 
     // Catch form language
     handleChangeLanguage(e) {
-        if(e.target.value) {
+        if (e.target.value) {
             this.setState({language: e.target.value})
         }
     }
+
     // Handle form submit
     // onSubmit we insert data to firebase
     handleSubmit(e) {
+        let that = this;
         e.preventDefault();
         e.target.reset();
         let data = {
@@ -59,25 +60,25 @@ class Popup extends Component {
         };
 
         let db = firebase.firestore();
-        db.collection("sheets").add({data
+        db.collection("sheets").add({
+            data
         })
-            .then(function(response) {
-                if(response.id) {
-                    console.log('success');
+            .then(function (response) {
+                if (response.id) {
+                    that.componentDidMount()
                 }
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error("Error adding document: ", error);
             });
     }
 
 
-
     render() {
         //console.log(this.state);
         return (
-            <div className="row d-flex">
-                <div className="col-12 col-md-6 mx-auto">
+            <div className="col-12">
+                <div className="mx-auto">
                     <Form onSubmit={this.handleSubmit} id="sheet-form">
                         {/* Language */}
                         <Form.Group>
@@ -91,45 +92,36 @@ class Popup extends Component {
                             </select>
                         </Form.Group>
 
-                        {/* Sheet Name */}
+                        {/* Name */}
                         <Form.Group>
-                            <Form.Label>Sheet Name</Form.Label>
-                            <Form.Control type="name" name="name" placeholder="Enter name" onChange={e => this.handleAddSheet(e)}/>
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control type="name" name="name" placeholder="Enter name"
+                                          onChange={e => this.handleAddSheet(e)}/>
                             <Form.Text className="text-muted">
                             </Form.Text>
                         </Form.Group>
 
-                        {/* Sheet Name */}
+                        {/* Code */}
                         <Form.Group>
-                            <Form.Label>Sheet Code</Form.Label>
+                            <Form.Label>Code</Form.Label>
                             <textarea rows="4" name="code" className="w-100" onChange={e => this.handleAddSheet(e)}/>
                         </Form.Group>
 
-                        {/* Sheet Link */}
+                        {/* Link */}
                         <Form.Group>
-                            <Form.Label>Sheet Link</Form.Label>
+                            <Form.Label>Link</Form.Label>
                             <Form.Control type="text" name="link" onChange={e => this.handleAddSheet(e)}/>
                         </Form.Group>
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code || !this.state.link}>
                             Add
                         </Button>
                     </Form>
                 </div>
 
-                <div className="col-12 col-md-6 mx-auto">
-                    {
-                        this.state.sheets ?
-                            this.state.sheets.map((item, key) =>
-                                <div key={key} className="border-bottom">
-                                    <div> {item.name} ({item.code})</div>
-                                    <div> {item.code}</div>
-                                    <div> {item.link}</div>
-                                </div>
-
-                            )
-                            :
-                            <div> No data</div>
-                    }
+                <div className="row mt-3">
+                    <div className="col-12 mx-auto">
+                        <SheetLists lists={this.state.sheets}/>
+                    </div>
                 </div>
             </div>
         );
