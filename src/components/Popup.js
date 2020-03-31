@@ -5,18 +5,24 @@ import SheetLists from "./SheetLists";
 
 
 class Popup extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+
         this.state = {
             sheets: [],
             language: 'react',
             name: '',
             code: '',
             link: '',
-
+            isEditView: false,
         };
+
         this.handleAddSheet = this.handleAddSheet.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.isRowDeleted = this.isRowDeleted.bind(this);
+        this.isRowEdit = this.isRowEdit.bind(this);
+        this.isRowCancel = this.isRowCancel.bind(this);
+
     }
 
     componentDidMount() {
@@ -26,6 +32,7 @@ class Popup extends Component {
             .then(function (response) {
                 response.forEach((doc) => {
                     let sheets = doc.data().data;
+                    sheets['id'] = doc.id;
                     that.setState({sheets: [...that.state.sheets, sheets]});
                 });
             })
@@ -49,6 +56,7 @@ class Popup extends Component {
     // Handle form submit
     // onSubmit we insert data to firebase
     handleSubmit(e) {
+
         let that = this;
         e.preventDefault();
         e.target.reset();
@@ -65,6 +73,8 @@ class Popup extends Component {
         })
             .then(function (response) {
                 if (response.id) {
+                    // Clean state before calling
+                    that.setState({sheets: []});
                     that.componentDidMount()
                 }
             })
@@ -74,8 +84,34 @@ class Popup extends Component {
     }
 
 
+    isRowDeleted(item) {
+        if(item) {
+            // Clean state before calling
+            this.setState({sheets: []});
+            this.componentDidMount();
+        }
+    }
+
+    isRowEdit(row) {
+        if(row) {
+            this.setState({isEditView: true});
+            this.setState({name: row.name});
+            this.setState({code: row.code});
+            this.setState({link: row.link});
+            this.setState({language: row.language});
+        }
+    }
+
+    isRowCancel(row) {
+        if(row === 'cancel') {
+            this.setState({name: ''});
+            this.setState({code: ''});
+            this.setState({link: ''});
+            this.setState({language: 'react'});
+        }
+    }
+
     render() {
-        //console.log(this.state);
         return (
             <div className="col-12">
                 <div className="mx-auto">
@@ -84,18 +120,18 @@ class Popup extends Component {
                         <Form.Group>
                             <Form.Label>Language</Form.Label>
                             <select className="form-control" onChange={e => this.handleChangeLanguage(e)}>
-                                <option name='language' value='react'>React</option>
-                                <option name='language' value='vue'>Vue</option>
-                                <option name='language' value='php'>Php</option>
-                                <option name='language' value='git'>Git</option>
-                                <option name='language' value='ubuntu'>Ubuntu</option>
+                                <option name='language' value='react' selected={this.state.language === 'react'} >React</option>
+                                <option name='language' value='vue' selected={this.state.language === 'vue'}>Vue</option>
+                                <option name='language' value='php' selected={this.state.language === 'php'}>Php</option>
+                                <option name='language' value='git' selected={this.state.language === 'git'}>Git</option>
+                                <option name='language' value='ubuntu' selected={this.state.language === 'ubuntu'}>Ubuntu</option>
                             </select>
                         </Form.Group>
 
                         {/* Name */}
                         <Form.Group>
                             <Form.Label>Name</Form.Label>
-                            <Form.Control type="name" name="name" placeholder="Enter name"
+                            <Form.Control type="name" name="name" value={this.state.name} placeholder="Enter name"
                                           onChange={e => this.handleAddSheet(e)}/>
                             <Form.Text className="text-muted">
                             </Form.Text>
@@ -104,23 +140,23 @@ class Popup extends Component {
                         {/* Code */}
                         <Form.Group>
                             <Form.Label>Code</Form.Label>
-                            <textarea rows="4" name="code" className="w-100" onChange={e => this.handleAddSheet(e)}/>
+                            <textarea rows="4" name="code" value={this.state.code} className="w-100" onChange={e => this.handleAddSheet(e)}/>
                         </Form.Group>
 
                         {/* Link */}
                         <Form.Group>
                             <Form.Label>Link</Form.Label>
-                            <Form.Control type="text" name="link" onChange={e => this.handleAddSheet(e)}/>
+                            <Form.Control type="text" name="link"  value={this.state.link} onChange={e => this.handleAddSheet(e)}/>
                         </Form.Group>
-                        <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code || !this.state.link}>
-                            Add
+                        <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code}>
+                            {this.state.isEditView ? 'Edit' : 'Add'}
                         </Button>
                     </Form>
                 </div>
 
                 <div className="row mt-3">
                     <div className="col-12 mx-auto">
-                        <SheetLists lists={this.state.sheets}/>
+                        <SheetLists lists={this.state.sheets} isRowDeleted={this.isRowDeleted} isRowEdit={this.isRowEdit} isRowCancel={this.isRowCancel}/>
                     </div>
                 </div>
             </div>

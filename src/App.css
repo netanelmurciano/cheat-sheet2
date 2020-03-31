@@ -1,7 +1,29 @@
-html, body {
+html {
   width: 100%;
+  font-size: 16px;
+}
+
+body {
+  width: 100%;
+  background-color: #fafafa !important;
+
 }
 
 .main {
   width: 550px;
+}
+
+.xy-align {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+}
+
+.text-1 {
+  font-size: 0.875rem; /* 14px*/
 }
