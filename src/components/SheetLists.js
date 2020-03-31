@@ -8,7 +8,6 @@ class SheetLists extends Component {
         this.state = {
             deleted: false,
             isEditView: false,
-
         };
         this.db = firebase.firestore();
 

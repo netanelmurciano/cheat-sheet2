@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import firebase from '../firebase';
-import {Button, Form} from 'react-bootstrap';
+import {Accordion, Button, Card, Form} from 'react-bootstrap';
 import SheetLists from "./SheetLists";
 
 
@@ -115,45 +115,58 @@ class Popup extends Component {
         return (
             <div className="col-12">
                 <div className="mx-auto">
-                    <Form onSubmit={this.handleSubmit} id="sheet-form">
-                        {/* Language */}
-                        <Form.Group>
-                            <Form.Label>Language</Form.Label>
-                            <select className="form-control" onChange={e => this.handleChangeLanguage(e)}>
-                                <option name='language' value='react' selected={this.state.language === 'react'} >React</option>
-                                <option name='language' value='vue' selected={this.state.language === 'vue'}>Vue</option>
-                                <option name='language' value='php' selected={this.state.language === 'php'}>Php</option>
-                                <option name='language' value='git' selected={this.state.language === 'git'}>Git</option>
-                                <option name='language' value='ubuntu' selected={this.state.language === 'ubuntu'}>Ubuntu</option>
-                            </select>
-                        </Form.Group>
+                    <Accordion>
+                        <Card>
+                            <Card.Header>
+                                <Accordion.Toggle as={Card.Header} variant="link" eventKey='collapse'>
+                                    <span className="text-info">To add a new sheet...</span>
+                                </Accordion.Toggle>
+                            </Card.Header>
+                            <Accordion.Collapse eventKey='collapse'>
+                                <Card.Body>
 
-                        {/* Name */}
-                        <Form.Group>
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control type="name" name="name" value={this.state.name} placeholder="Enter name"
-                                          onChange={e => this.handleAddSheet(e)}/>
-                            <Form.Text className="text-muted">
-                            </Form.Text>
-                        </Form.Group>
+                                        <Form onSubmit={this.handleSubmit} id="sheet-form">
+                                            {/* Language */}
+                                            <Form.Group>
+                                                <Form.Label>Language</Form.Label>
+                                                <select className="form-control" onChange={e => this.handleChangeLanguage(e)}>
+                                                    <option name='language' value='react' selected={this.state.language === 'react'} >React</option>
+                                                    <option name='language' value='vue' selected={this.state.language === 'vue'}>Vue</option>
+                                                    <option name='language' value='php' selected={this.state.language === 'php'}>Php</option>
+                                                    <option name='language' value='git' selected={this.state.language === 'git'}>Git</option>
+                                                    <option name='language' value='ubuntu' selected={this.state.language === 'ubuntu'}>Ubuntu</option>
+                                                </select>
+                                            </Form.Group>
 
-                        {/* Code */}
-                        <Form.Group>
-                            <Form.Label>Code</Form.Label>
-                            <textarea rows="4" name="code" value={this.state.code} className="w-100" onChange={e => this.handleAddSheet(e)}/>
-                        </Form.Group>
+                                            {/* Name */}
+                                            <Form.Group>
+                                                <Form.Label>Name</Form.Label>
+                                                <Form.Control type="name" name="name" value={this.state.name} placeholder="Enter name"
+                                                              onChange={e => this.handleAddSheet(e)}/>
+                                                <Form.Text className="text-muted">
+                                                </Form.Text>
+                                            </Form.Group>
 
-                        {/* Link */}
-                        <Form.Group>
-                            <Form.Label>Link</Form.Label>
-                            <Form.Control type="text" name="link"  value={this.state.link} onChange={e => this.handleAddSheet(e)}/>
-                        </Form.Group>
-                        <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code}>
-                            {this.state.isEditView ? 'Edit' : 'Add'}
-                        </Button>
-                    </Form>
+                                            {/* Code */}
+                                            <Form.Group>
+                                                <Form.Label>Code</Form.Label>
+                                                <textarea rows="4" name="code" value={this.state.code} className="w-100" onChange={e => this.handleAddSheet(e)}/>
+                                            </Form.Group>
+
+                                            {/* Link */}
+                                            <Form.Group>
+                                                <Form.Label>Link</Form.Label>
+                                                <Form.Control type="text" name="link"  value={this.state.link} onChange={e => this.handleAddSheet(e)}/>
+                                            </Form.Group>
+                                            <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code}>
+                                                {this.state.isEditView ? 'Edit' : 'Add'}
+                                            </Button>
+                                        </Form>
+                                </Card.Body>
+                            </Accordion.Collapse>
+                        </Card>
+                    </Accordion>
                 </div>
-
                 <div className="row mt-3">
                     <div className="col-12 mx-auto">
                         <SheetLists lists={this.state.sheets} isRowDeleted={this.isRowDeleted} isRowEdit={this.isRowEdit} isRowCancel={this.isRowCancel}/>
