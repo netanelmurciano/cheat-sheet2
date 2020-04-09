@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import firebase from '../firebase';
+import $ from 'jquery'
 import {Accordion, Button, Card, Form} from 'react-bootstrap';
 import SheetLists from "./SheetLists";
 
@@ -14,8 +15,11 @@ class Popup extends Component {
             name: '',
             code: '',
             link: '',
+            sheetId: '',
             isEditView: false,
         };
+
+        this.db = firebase.firestore();
 
         this.handleAddSheet = this.handleAddSheet.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -55,20 +59,20 @@ class Popup extends Component {
 
     // Handle form submit
     // onSubmit we insert data to firebase
-    handleSubmit(e) {
-
+    handleSubmit(e, btnText) {
         let that = this;
         e.preventDefault();
         e.target.reset();
+        // If btnText is false we Add new data
+        if(!btnText && !this.state.sheetId) {
+            document.getElementById("sheet-form").reset();
         let data = {
             'language': this.state.language,
             'name': this.state.name,
             'code': this.state.code,
             'link': this.state.link,
         };
-
-        let db = firebase.firestore();
-        db.collection("sheets").add({
+            this.db.collection("sheets").add({
             data
         })
             .then(function (response) {
@@ -76,11 +80,32 @@ class Popup extends Component {
                     // Clean state before calling
                     that.setState({sheets: []});
                     that.componentDidMount()
+                    $('.form-collapse').removeClass('show');
                 }
             })
             .catch(function (error) {
                 console.error("Error adding document: ", error);
             });
+        } else {
+            // If btnText is true we Edit the data
+            let data = {
+                'language': this.state.language,
+                'name': this.state.name,
+                'code': this.state.code,
+                'link': this.state.link,
+            };
+            this.db.collection('sheets').doc(this.state.sheetId)
+           .set({
+               data
+            }).then((docRef) => {
+                that.setState({sheets: []});
+                that.componentDidMount()
+                $('.form-collapse').removeClass('show');
+            })
+                .catch((error) => {
+                    console.error("Error adding document: ", error);
+                });
+        }
     }
 
 
@@ -94,22 +119,26 @@ class Popup extends Component {
 
     isRowEdit(row) {
         if(row) {
+            $('.form-collapse').addClass('show');
             this.setState({isEditView: true});
             this.setState({name: row.name});
             this.setState({code: row.code});
             this.setState({link: row.link});
             this.setState({language: row.language});
+            this.setState({sheetId: row.id});
         }
     }
 
+    // If we canceled the edit
     isRowCancel(row) {
         if(row === 'cancel') {
-            this.setState({name: ''});
-            this.setState({code: ''});
-            this.setState({link: ''});
-            this.setState({language: 'react'});
+            $('.form-collapse').removeClass('show');
+            this.setState({isEditView: false});
+            this.setState({fields: []});
+            this.setState({sheetId: ''});
         }
     }
+
 
     render() {
         return (
@@ -118,14 +147,13 @@ class Popup extends Component {
                     <Accordion>
                         <Card>
                             <Card.Header>
-                                <Accordion.Toggle as={Card.Header} variant="link" eventKey='collapse'>
+                                <Accordion.Toggle as={Card.Header} variant="link" eventKey='form-collapse'>
                                     <span className="text-info">To add a new sheet...</span>
                                 </Accordion.Toggle>
                             </Card.Header>
-                            <Accordion.Collapse eventKey='collapse'>
+                            <Accordion.Collapse eventKey='form-collapse' className="form-collapse">
                                 <Card.Body>
-
-                                        <Form onSubmit={this.handleSubmit} id="sheet-form">
+                                        <Form onSubmit={(e) => this.handleSubmit(e, this.state.isEditView)} id="sheet-form" ref="form">
                                             {/* Language */}
                                             <Form.Group>
                                                 <Form.Label>Language</Form.Label>
