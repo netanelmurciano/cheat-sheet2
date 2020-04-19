@@ -31,13 +31,15 @@ class Popup extends Component {
 
     componentDidMount() {
         let that = this;
-        let db = firebase.firestore();
-        db.collection("sheets").get()
+        this.db.collection("sheets").get()
             .then(function (response) {
                 response.forEach((doc) => {
-                    let sheets = doc.data().data;
-                    sheets['id'] = doc.id;
-                    that.setState({sheets: [...that.state.sheets, sheets]});
+                    if(doc.data().data.userId === that.props.userId) {
+                        let sheets = doc.data().data;
+                        sheets['id'] = doc.id;
+                        that.setState({sheets: [...that.state.sheets, sheets]});
+                    }
+
                 });
             })
             .catch(function (error) {
@@ -67,6 +69,7 @@ class Popup extends Component {
         if(!btnText && !this.state.sheetId) {
             document.getElementById("sheet-form").reset();
         let data = {
+            'userId': this.props.userId,
             'language': this.state.language,
             'name': this.state.name,
             'code': this.state.code,
@@ -89,6 +92,7 @@ class Popup extends Component {
         } else {
             // If btnText is true we Edit the data
             let data = {
+                'userId': this.props.userId,
                 'language': this.state.language,
                 'name': this.state.name,
                 'code': this.state.code,
@@ -141,6 +145,7 @@ class Popup extends Component {
 
 
     render() {
+        console.log(this.props)
         return (
             <div className="col-12">
                 <div className="mx-auto">

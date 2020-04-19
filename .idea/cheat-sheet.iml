@@ -7,5 +7,7 @@
     <orderEntry type="library" name="@types/jquery" level="application" />
     <orderEntry type="library" name="@types/chrome" level="application" />
     <orderEntry type="library" name="@types/chrome-apps" level="application" />
+    <orderEntry type="library" name="@types/react-router-dom" level="application" />
+    <orderEntry type="library" name="@types/react-router" level="application" />
   </component>
 </module>
