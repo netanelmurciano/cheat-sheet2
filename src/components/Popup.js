@@ -3,6 +3,7 @@ import firebase from '../firebase';
 import $ from 'jquery'
 import {Accordion, Button, Card, Form} from 'react-bootstrap';
 import SheetLists from "./SheetLists";
+import Autocomplete from "./common/Autocomplete";
 
 
 class Popup extends Component {
@@ -11,7 +12,8 @@ class Popup extends Component {
 
         this.state = {
             sheets: [],
-            language: 'react',
+            languages: [],
+            language: '',
             name: '',
             code: '',
             link: '',
@@ -26,13 +28,16 @@ class Popup extends Component {
         this.isRowDeleted = this.isRowDeleted.bind(this);
         this.isRowEdit = this.isRowEdit.bind(this);
         this.isRowCancel = this.isRowCancel.bind(this);
+        this.selectedLanguage = this.selectedLanguage.bind(this);
+
 
     }
 
     componentDidMount() {
         let that = this;
+        // Get all sheets data from firebase
         this.db.collection("sheets").get()
-            .then(function (response) {
+            .then((response) => {
                 response.forEach((doc) => {
                     if(doc.data().data.userId === that.props.userId) {
                         let sheets = doc.data().data;
@@ -45,6 +50,18 @@ class Popup extends Component {
             .catch(function (error) {
                 console.error(error);
             });
+        // Get all languages data from firebase
+        this.db.collection("languages").get()
+            .then((langsResponse) => {
+                langsResponse.forEach((doc) => {
+                        let languages = doc.data();
+                        languages['id'] = doc.id;
+                        that.setState({languages: [...that.state.languages, languages]});
+                });
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
     }
 
     // Catch form values
@@ -52,10 +69,11 @@ class Popup extends Component {
         this.setState({[e.target.name]: e.target.value});
     }
 
-    // Catch form language
-    handleChangeLanguage(e) {
-        if (e.target.value) {
-            this.setState({language: e.target.value})
+    selectedLanguage(languageSelected) {
+        console.log('natannn')
+        console.log(languageSelected)
+        if(languageSelected) {
+            this.setState({language:languageSelected})
         }
     }
 
@@ -145,7 +163,6 @@ class Popup extends Component {
 
 
     render() {
-        console.log(this.props)
         return (
             <div className="col-12">
                 <div className="mx-auto">
@@ -162,15 +179,8 @@ class Popup extends Component {
                                             {/* Language */}
                                             <Form.Group>
                                                 <Form.Label>Language</Form.Label>
-                                                <select className="form-control" onChange={e => this.handleChangeLanguage(e)}>
-                                                    <option name='language' value='react' selected={this.state.language === 'react'} >React</option>
-                                                    <option name='language' value='vue' selected={this.state.language === 'vue'}>Vue</option>
-                                                    <option name='language' value='php' selected={this.state.language === 'php'}>Php</option>
-                                                    <option name='language' value='git' selected={this.state.language === 'git'}>Git</option>
-                                                    <option name='language' value='ubuntu' selected={this.state.language === 'ubuntu'}>Ubuntu</option>
-                                                </select>
+                                                <Autocomplete languages={this.state.languages} selectedLanguage={this.selectedLanguage}/>
                                             </Form.Group>
-
                                             {/* Name */}
                                             <Form.Group>
                                                 <Form.Label>Name</Form.Label>

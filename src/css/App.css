@@ -28,6 +28,17 @@ body {
   font-size: 0.875rem; /* 14px*/
 }
 
+.suggestions {
+  padding-left: 0px;
+  list-style: none;
+}
+.suggestions span {
+  padding-left: 15px;
+}
 
+.suggestions li {
+  margin: 10px 0;
+  border: 1px solid #c6c8ca;
+  background-color: #17a2b8!important;
 
-
+}
