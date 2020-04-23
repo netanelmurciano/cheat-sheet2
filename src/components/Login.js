@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
-class Login extends Component {
-    render() {
+const Login = () => {
         return (
             <div className="d-flex justify-content-center h-200 w-100">
                 <div className="google-btn align-self-center">
@@ -13,7 +12,6 @@ class Login extends Component {
                 </div>
             </div>
         );
-    }
-}
+};
 
 export default Login;
