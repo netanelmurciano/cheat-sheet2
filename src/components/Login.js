@@ -1,9 +1,13 @@
 import React, {Component} from 'react';
 
-const Login = () => {
+class Login extends Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
         return (
             <div className="d-flex justify-content-center h-200 w-100">
-                <div className="google-btn align-self-center">
+                <div className="google-btn align-self-center" onClick={(e) => this.props.handleClickLogin(e, true)}>
                     <div className="google-icon-wrapper">
                         <img className="google-icon"
                              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"/>
@@ -12,6 +16,7 @@ const Login = () => {
                 </div>
             </div>
         );
-};
+    }
+}
 
 export default Login;

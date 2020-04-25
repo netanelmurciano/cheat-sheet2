@@ -6,16 +6,29 @@ import "../css/bootstrap.css";
 import Popup from "./Popup";
 import Login from "./Login";
 import LogOut from "./LogOut";
+import Toggle from "./common/Toggle";
+import $ from "jquery";
 
 class App extends Component {
    constructor() {
        super();
 
        this.state = {
-           userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : false
+           userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : false,
+           isLoginClicked: false
        };
 
-      // this.handleSignIn = this.handleSignIn.bind(this);
+      this.handleClickLogin = this.handleClickLogin.bind(this);
+      //this.natan = this.natan.bind(this);
+   }
+
+
+   // We handle sign in button
+   handleClickLogin(e, isLoginClicked) {
+       if(isLoginClicked) {
+           this.setState({isLoginClicked: isLoginClicked});
+           this.getAuthToken()
+       }
    }
 
     // Get google account token
@@ -39,7 +52,6 @@ class App extends Component {
                }
            }
        });
-
    }
 
     // Sign out
@@ -62,18 +74,40 @@ class App extends Component {
        }
     }
 
+    toggleForm() {
+       let plusIcon = $('.circle-plus');
+        plusIcon.toggleClass('opened');
+        if(plusIcon.hasClass('opened') ){
+            $('.form-collapse').addClass('show');
+        } else {
+            $('.form-collapse').removeClass('show');
+        }
+    }
+
    loadTemplate() {
        if(!localStorage.getItem('gToken')) {
            return (
-               <div onClick={this.getAuthToken} className="row main">
-                   <Login />
+               <div className="row main">
+                   <Login handleClickLogin={this.handleClickLogin} />
                </div>
            );
        }
        return (
            <div className="row main">
-               <div onClick={e => this.handleSignOut(e)} className="row main">
-                   <LogOut />
+               <div className="col-12 main d-flex w-100">
+                   <div className="row w-100">
+                       <div className="col-6">
+                           <div className="circle-plus closed d-flex"  onClick={this.toggleForm}>
+                               <div className="circle align-self-center">
+                                   <div className="horizontal"></div>
+                                   <div className="vertical"></div>
+                               </div>
+                           </div>
+                       </div>
+                       <div className="col-6 text-right align-self-center" onClick={e => this.handleSignOut(e)}>
+                           <i className="fa fa-sign-out fa-1x" aria-hidden="true"></i>
+                       </div>
+                   </div>
                </div>
                <Popup userId={this.state.userInfo.id}/>
            </div>

@@ -101,7 +101,10 @@ class Popup extends Component {
                     // Clean state before calling
                     that.setState({sheets: []});
                     that.componentDidMount()
+                    // Close form
                     $('.form-collapse').removeClass('show');
+                    // Change icon from minus to plus
+                    $('.circle-plus').toggleClass('opened');
                 }
             })
             .catch(function (error) {

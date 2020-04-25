@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 const LogOut = () => {
     return (
-        <div className="d-flex justify-content-center h-200 w-100">
+        <div className="d-flex justify-content-end w-100">
             <div className="google-btn align-self-center">
                 <div className="google-icon-wrapper">
                     <img className="google-icon"
