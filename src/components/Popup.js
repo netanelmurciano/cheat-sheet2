@@ -1,3 +1,4 @@
+/* global chrome */
 import React, {Component} from 'react';
 import firebase from '../firebase';
 import $ from 'jquery'
@@ -12,6 +13,7 @@ class Popup extends Component {
 
         this.state = {
             sheets: [],
+            filteredSuggestions:[],
             languages: [],
             language: '',
             name: '',
@@ -29,8 +31,6 @@ class Popup extends Component {
         this.isRowEdit = this.isRowEdit.bind(this);
         this.isRowCancel = this.isRowCancel.bind(this);
         this.selectedLanguage = this.selectedLanguage.bind(this);
-
-
     }
 
     componentDidMount() {
@@ -62,16 +62,28 @@ class Popup extends Component {
             .catch(function (error) {
                 console.error(error);
             });
+
+        // Get current tab url
+        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+            (tabs) => {
+                this.setState({link: tabs[0].url});
+                this.setState({name: tabs[0].title})
+            }
+        );
+        // If we have copy of text in clipboard we add it to 'code' input
+        if(document.execCommand('paste')) {
+            let input = document.querySelector("textarea");
+            input.focus();
+            $('#code').innerText = document.execCommand('paste')
+        }
     }
 
-    // Catch form values
+    // Set form values
     handleAddSheet(e) {
         this.setState({[e.target.name]: e.target.value});
     }
 
     selectedLanguage(languageSelected) {
-        console.log('natannn')
-        console.log(languageSelected)
         if(languageSelected) {
             this.setState({language:languageSelected})
         }
@@ -82,10 +94,7 @@ class Popup extends Component {
     handleSubmit(e, btnText) {
         let that = this;
         e.preventDefault();
-        e.target.reset();
-        // If btnText is false we Add new data
-        if(!btnText && !this.state.sheetId) {
-            document.getElementById("sheet-form").reset();
+
         let data = {
             'userId': this.props.userId,
             'language': this.state.language,
@@ -93,6 +102,8 @@ class Popup extends Component {
             'code': this.state.code,
             'link': this.state.link,
         };
+        // If btnText is false we Add new data
+        if(!btnText && !this.state.sheetId) {
             this.db.collection("sheets").add({
             data
         })
@@ -100,7 +111,7 @@ class Popup extends Component {
                 if (response.id) {
                     // Clean state before calling
                     that.setState({sheets: []});
-                    that.componentDidMount()
+                    that.componentDidMount();
                     // Close form
                     $('.form-collapse').removeClass('show');
                     // Change icon from minus to plus
@@ -112,13 +123,6 @@ class Popup extends Component {
             });
         } else {
             // If btnText is true we Edit the data
-            let data = {
-                'userId': this.props.userId,
-                'language': this.state.language,
-                'name': this.state.name,
-                'code': this.state.code,
-                'link': this.state.link,
-            };
             this.db.collection('sheets').doc(this.state.sheetId)
            .set({
                data
@@ -133,10 +137,9 @@ class Popup extends Component {
         }
     }
 
-
     isRowDeleted(item) {
         if(item) {
-            // Clean state before calling
+            // Clean state before data load
             this.setState({sheets: []});
             this.componentDidMount();
         }
@@ -164,6 +167,16 @@ class Popup extends Component {
         }
     }
 
+    // Handle input text changed
+    onChange(e) {
+        // we filter our suggestions list according of what we type in input
+        const filteredSuggestions =  this.state.sheets.filter(
+            (suggestion) => suggestion.language.toLowerCase().indexOf(e.currentTarget.value.toLowerCase()) > -1
+        );
+        this.setState({
+            filteredSuggestions,
+        });
+    }
 
     render() {
         return (
@@ -172,17 +185,24 @@ class Popup extends Component {
                     <Accordion>
                         <Card>
                             <Card.Header>
-                                <Accordion.Toggle as={Card.Header} variant="link" eventKey='form-collapse'>
-                                    <span className="text-info">To add a new sheet...</span>
+                                <Accordion.Toggle as={Card.Header} >
+                                    <React.Fragment>
+                                        <Form.Control
+                                            type="text"
+                                            onChange={(e) => this.onChange(e)}
+                                            value={this.state.userInput}
+                                            placeholder="Search language..."
+                                        />
+                                    </React.Fragment>
                                 </Accordion.Toggle>
                             </Card.Header>
-                            <Accordion.Collapse eventKey='form-collapse' className="form-collapse">
+                            <Accordion.Collapse eventKey='form-collapse' className="form-collapse show">
                                 <Card.Body>
                                         <Form onSubmit={(e) => this.handleSubmit(e, this.state.isEditView)} id="sheet-form" ref="form">
                                             {/* Language */}
                                             <Form.Group>
                                                 <Form.Label>Language</Form.Label>
-                                                <Autocomplete languages={this.state.languages} selectedLanguage={this.selectedLanguage}/>
+                                                <Autocomplete suggestions={this.state.languages} selectedSuggestion={this.selectedLanguage}/>
                                             </Form.Group>
                                             {/* Name */}
                                             <Form.Group>
@@ -196,7 +216,7 @@ class Popup extends Component {
                                             {/* Code */}
                                             <Form.Group>
                                                 <Form.Label>Code</Form.Label>
-                                                <textarea rows="4" name="code" value={this.state.code} className="w-100" onChange={e => this.handleAddSheet(e)}/>
+                                                <textarea  rows="4" name="code" id="code" value={this.state.code} className="w-100" onChange={e => this.handleAddSheet(e)} />
                                             </Form.Group>
 
                                             {/* Link */}
@@ -215,7 +235,7 @@ class Popup extends Component {
                 </div>
                 <div className="row mt-3">
                     <div className="col-12 mx-auto">
-                        <SheetLists lists={this.state.sheets} isRowDeleted={this.isRowDeleted} isRowEdit={this.isRowEdit} isRowCancel={this.isRowCancel}/>
+                        <SheetLists lists={this.state.filteredSuggestions.length > 0 ? this.state.filteredSuggestions : this.state.sheets} isRowDeleted={this.isRowDeleted} isRowEdit={this.isRowEdit} isRowCancel={this.isRowCancel}/>
                     </div>
                 </div>
             </div>

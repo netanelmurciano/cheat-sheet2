@@ -45,7 +45,6 @@ body {
 }
 
 /* Handle the plus icon on add new data */
-
 .closed .vertical {
   transition: all 0.5s ease-in-out;
   transform: rotate(-90deg);

@@ -13,7 +13,7 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "permissions": ["identity", "identity.email"],
+  "permissions": ["identity", "identity.email", "tabs", "clipboardRead"],
   "oauth2": {
     "client_id": "17304686700-qhft0nc28a6nedt5f1t2fjb8dlkasuku.apps.googleusercontent.com",
     "scopes":["profile"]

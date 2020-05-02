@@ -5,8 +5,6 @@ import "../css/google-btn.css";
 import "../css/bootstrap.css";
 import Popup from "./Popup";
 import Login from "./Login";
-import LogOut from "./LogOut";
-import Toggle from "./common/Toggle";
 import $ from "jquery";
 
 class App extends Component {
@@ -19,9 +17,7 @@ class App extends Component {
        };
 
       this.handleClickLogin = this.handleClickLogin.bind(this);
-      //this.natan = this.natan.bind(this);
    }
-
 
    // We handle sign in button
    handleClickLogin(e, isLoginClicked) {
@@ -74,6 +70,7 @@ class App extends Component {
        }
     }
 
+    // Open and close toggle form
     toggleForm() {
        let plusIcon = $('.circle-plus');
         plusIcon.toggleClass('opened');
@@ -97,7 +94,7 @@ class App extends Component {
                <div className="col-12 main d-flex w-100">
                    <div className="row w-100">
                        <div className="col-6">
-                           <div className="circle-plus closed d-flex"  onClick={this.toggleForm}>
+                           <div className="circle-plus closed opened d-flex"  onClick={this.toggleForm}>
                                <div className="circle align-self-center">
                                    <div className="horizontal"></div>
                                    <div className="vertical"></div>
@@ -115,7 +112,6 @@ class App extends Component {
    }
 
   render() {
-       console.log(this.state);
     return (
         <div className="container">
             {this.loadTemplate()}

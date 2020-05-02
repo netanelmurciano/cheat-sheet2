@@ -18,8 +18,8 @@ class Autocomplete extends Component {
 
     // Handle input text changed
     onChange(e) {
-        // we filter our languages list according of what we type in input
-        const filteredSuggestions =  this.props.languages.filter(
+        // we filter our suggestions list according of what we type in input
+        const filteredSuggestions =  this.props.suggestions.filter(
             (suggestion) => suggestion.name.toLowerCase().indexOf(e.currentTarget.value.toLowerCase()) > -1
         );
         this.setState({
@@ -27,7 +27,6 @@ class Autocomplete extends Component {
             showSuggestions: true,
             userInput: e.currentTarget.value
         });
-
     }
     // We set the selected language according what we choose from the list
     // we handle the click in suggestionsLIstComponent
@@ -37,9 +36,10 @@ class Autocomplete extends Component {
             showSuggestions: false,
             userInput: e.currentTarget.innerText
         })
-        this.props.selectedLanguage(e.currentTarget.innerText)
+        this.props.selectedSuggestion(e.currentTarget.innerText)
     }
 
+    // Add new language
     handleAddLanguage(e) {
         e.preventDefault();
         let that = this;
@@ -49,7 +49,8 @@ class Autocomplete extends Component {
             .then(function (response) {
                 if (response.id) {
                     that.setState({userInput: ''});
-                    alert('Language been added')
+                    alert('Language been added');
+                    window.location.reload();
                 }
             })
             .catch(function (error) {
@@ -58,15 +59,12 @@ class Autocomplete extends Component {
     }
 
     render() {
-        console.log(this.state);
         let suggestionsListComponent;
         if (this.state.showSuggestions && this.state.userInput) {
             if (this.state.filteredSuggestions.length) {
                 /* If we find match */
                 suggestionsListComponent = (
-                    <ul className="suggestions">
-                        <SuggestionsListComponent filteredSuggestions={this.state.filteredSuggestions} handleSelectedLanguage={this.setSelectedLanguage}/>
-                    </ul>
+                  <SuggestionsListComponent filteredSuggestions={this.state.filteredSuggestions} handleSelectedLanguage={this.setSelectedLanguage}/>
                 );
             } else {
                 /* If we don't find match */
@@ -78,16 +76,14 @@ class Autocomplete extends Component {
             }
         }
         return (
-            <React.Fragment>
-                <Form.Control
-                    type="text"
-                    onChange={(e) => this.onChange(e)}
-                    onKeyDown={this.onKeyDown}
-                    value={this.state.userInput}
-                />
-                {suggestionsListComponent}
-
-            </React.Fragment>
+                <React.Fragment>
+                    <Form.Control
+                        type="text"
+                        onChange={(e) => this.onChange(e)}
+                        value={this.state.userInput}
+                    />
+                    {suggestionsListComponent}
+                </React.Fragment>
         );
     }
 }

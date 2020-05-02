@@ -4,22 +4,20 @@ class SuggestionsListComponent extends Component {
     constructor(props) {
         super(props);
     }
-    selectLanguage(e) {
+    selectSuggest(e) {
         this.props.handleSelectedLanguage(e);
     }
     render() {
         return (
-            <div>
                 <ul className="suggestions">
-                    {this.props.filteredSuggestions.map((language, index) => {
+                    {this.props.filteredSuggestions.map((suggest, index) => {
                         return (
-                            <li key={language.id} onClick={(e) => this.selectLanguage(e)}>
-                               <span>{language.name}</span>
+                            <li key={suggest.id} onClick={(e) => this.selectSuggest(e)}>
+                               <span>{suggest.name}</span>
                             </li>
                         );
                     })}
                 </ul>
-            </div>
         );
     }
 }
