@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 
 class SuggestionsListComponent extends Component {
-    constructor(props) {
-        super(props);
-    }
     selectSuggest(e) {
         this.props.handleSelectedLanguage(e);
     }
@@ -12,7 +9,7 @@ class SuggestionsListComponent extends Component {
                 <ul className="suggestions">
                     {this.props.filteredSuggestions.map((suggest, index) => {
                         return (
-                            <li key={suggest.id} onClick={(e) => this.selectSuggest(e)}>
+                            <li key={suggest.id} onClick={(e) => this.selectSuggest(e)} className='cursor-pointer'>
                                <span>{suggest.name}</span>
                             </li>
                         );

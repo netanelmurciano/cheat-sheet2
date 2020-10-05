@@ -31,7 +31,6 @@ class App extends Component {
     getAuthToken() {
        chrome.identity.getAuthToken({interactive: true}, (token) => {
            if(token) {
-               console.log(token);
                localStorage.setItem('gToken', token);
                var x = new XMLHttpRequest();
                x.open('GET', 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=' + token);
@@ -76,13 +75,17 @@ class App extends Component {
         plusIcon.toggleClass('opened');
         if(plusIcon.hasClass('opened') ){
             $('.form-collapse').addClass('show');
+            $('.card-header').addClass('d-none');
+            $('.list-wrapper').addClass('d-none');
         } else {
             $('.form-collapse').removeClass('show');
+            $('.card-header').removeClass('d-none');
+            $('.list-wrapper').removeClass('d-none');
         }
     }
 
    loadTemplate() {
-       if(!localStorage.getItem('gToken')) {
+       if(localStorage.getItem('gToken')) {
            return (
                <div className="row main">
                    <Login handleClickLogin={this.handleClickLogin} />
@@ -91,8 +94,8 @@ class App extends Component {
        }
        return (
            <div className="row main">
-               <div className="col-12 main d-flex w-100">
-                   <div className="row w-100">
+               <div className="col-12">
+                   <div className="row">
                        <div className="col-6">
                            <div className="circle-plus closed opened d-flex"  onClick={this.toggleForm}>
                                <div className="circle align-self-center">

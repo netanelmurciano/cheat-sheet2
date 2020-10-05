@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import firebase from '../../firebase';
 import {Form} from 'react-bootstrap';
 import SuggestionsListComponent from "./suggestionsListComponent";
-import $ from "jquery";
 
 class Autocomplete extends Component {
     constructor(props) {
@@ -70,7 +69,7 @@ class Autocomplete extends Component {
                 /* If we don't find match */
                 suggestionsListComponent = (
                     <div className="no-suggestions">
-                        <em>No suggestions! <span className="text-info" onClick={(e) => this.handleAddLanguage(e)}>Click to add new language {this.state.userInput}</span></em>
+                        <em>No suggestions! <span className="text-info cursor-pointer" onClick={(e) => this.handleAddLanguage(e)}>Click to add new language {this.state.userInput}</span></em>
                     </div>
                 );
             }
@@ -80,7 +79,8 @@ class Autocomplete extends Component {
                     <Form.Control
                         type="text"
                         onChange={(e) => this.onChange(e)}
-                        value={this.state.userInput}
+                        name='language'
+                        value={this.state.userInput ? this.state.userInput : this.props.currentLanguage}
                     />
                     {suggestionsListComponent}
                 </React.Fragment>

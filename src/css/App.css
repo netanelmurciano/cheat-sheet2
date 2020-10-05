@@ -40,7 +40,7 @@ body {
 .suggestions li {
   margin: 10px 0;
   border: 1px solid #c6c8ca;
-  background-color: #17a2b8!important;
+  background-color: #f1f1f1!important;
 
 }
 
@@ -84,7 +84,7 @@ body {
 }
 .circle-plus .circle .horizontal {
   position: absolute;
-  background-color: red;
+  background-color: black;
   width: 16px;
   height: 3px;
   left: 50%;
@@ -94,7 +94,7 @@ body {
 }
 .circle-plus .circle .vertical {
   position: absolute;
-  background-color: red;
+  background-color: black;
   width: 3px;
   height: 16px;
   left: 50%;
@@ -102,3 +102,23 @@ body {
   top: 50%;
   margin-top: -9px;
 }
+.fa-sign-out {
+  font-size: 1.4rem;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+
+/*button.btn.collapsed:before
+{
+  font-family: "FontAwesome";
+  content:'\f040' ;
+  display:block;
+  width:15px;
+}
+button.btn:before
+{
+  content:'\f00d' ;
+  display:block;
+  width:15px;
+}*/

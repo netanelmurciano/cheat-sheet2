@@ -1,9 +1,9 @@
 {
-  "short_name": "Cheat Sheet",
-  "name": "Cheat Sheet",
-  "description": "A cheat sheet for a developer is the place where the developer will save all the unique things.",
+  "short_name": "Developer Cheat Sheet",
+  "name": "Developer Cheat Sheet",
+  "description": "A cheat sheet for a developer is the place where the developer will save all the unique things. this is pre-alpha version",
   "manifest_version": 2,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "browser_action": {
     "default_popup": "index.html",
     "default_title": "Cheat Sheet"

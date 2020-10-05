@@ -64,18 +64,18 @@ class Popup extends Component {
             });
 
         // Get current tab url
-        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+       /* chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
             (tabs) => {
                 this.setState({link: tabs[0].url});
                 this.setState({name: tabs[0].title})
             }
-        );
+        );*/
         // If we have copy of text in clipboard we add it to 'code' input
-        if(document.execCommand('paste')) {
+      /*  if(document.execCommand('paste')) {
             let input = document.querySelector("textarea");
             input.focus();
             $('#code').innerText = document.execCommand('paste')
-        }
+        }*/
     }
 
     // Set form values
@@ -116,6 +116,8 @@ class Popup extends Component {
                     $('.form-collapse').removeClass('show');
                     // Change icon from minus to plus
                     $('.circle-plus').toggleClass('opened');
+                    // Show list
+                    $('.list-wrapper').removeClass('d-none');
                 }
             })
             .catch(function (error) {
@@ -127,9 +129,17 @@ class Popup extends Component {
            .set({
                data
             }).then((docRef) => {
-                that.setState({sheets: []});
+                that.setState({
+                    sheets: [],
+                    isEditView: false
+                });
                 that.componentDidMount()
+                // Close form
                 $('.form-collapse').removeClass('show');
+                // Change icon from minus to plus
+                $('.circle-plus').toggleClass('opened');
+                // Show list
+                $('.list-wrapper').removeClass('d-none');
             })
                 .catch((error) => {
                     console.error("Error adding document: ", error);
@@ -148,23 +158,31 @@ class Popup extends Component {
     isRowEdit(row) {
         if(row) {
             $('.form-collapse').addClass('show');
-            this.setState({isEditView: true});
-            this.setState({name: row.name});
-            this.setState({code: row.code});
-            this.setState({link: row.link});
-            this.setState({language: row.language});
-            this.setState({sheetId: row.id});
+            $('.circle-plus').toggleClass('opened');
+            this.setState(
+                {
+                    isEditView: true,
+                    name: row.name,
+                    code: row.code,
+                    link: row.link,
+                    language: row.language,
+                    sheetId: row.id
+
+                });
         }
     }
 
     // If we canceled the edit
-    isRowCancel(row) {
-        if(row === 'cancel') {
-            $('.form-collapse').removeClass('show');
-            this.setState({isEditView: false});
-            this.setState({fields: []});
-            this.setState({sheetId: ''});
-        }
+    isRowCancel(e) {
+        $('.form-collapse').removeClass('show');
+        $('.circle-plus').toggleClass('opened');
+        $('.card-header').removeClass('d-none');
+        $('.list-wrapper').removeClass('d-none');
+        this.setState({
+            isEditView: false,
+            //fields: [],
+            //sheetId: ''
+        });
     }
 
     // Handle input text changed
@@ -180,11 +198,11 @@ class Popup extends Component {
 
     render() {
         return (
-            <div className="col-12">
+            <div className="col-12 mb-3">
                 <div className="mx-auto">
                     <Accordion>
                         <Card>
-                            <Card.Header>
+                            <Card.Header className="card-header d-none">
                                 <Accordion.Toggle as={Card.Header} >
                                     <React.Fragment>
                                         <Form.Control
@@ -196,13 +214,13 @@ class Popup extends Component {
                                     </React.Fragment>
                                 </Accordion.Toggle>
                             </Card.Header>
-                            <Accordion.Collapse eventKey='form-collapse' className="form-collapse show">
+                            <Accordion.Collapse eventKey='form-collapse' className="form-collapse show mb-3">
                                 <Card.Body>
-                                        <Form onSubmit={(e) => this.handleSubmit(e, this.state.isEditView)} id="sheet-form" ref="form">
+                                        <Form onSubmit={(e) => this.handleSubmit(e, this.state.isEditView)} id="sheet-form" ref="form" className="d-inline">
                                             {/* Language */}
                                             <Form.Group>
                                                 <Form.Label>Language</Form.Label>
-                                                <Autocomplete suggestions={this.state.languages} selectedSuggestion={this.selectedLanguage}/>
+                                                <Autocomplete suggestions={this.state.languages} selectedSuggestion={this.selectedLanguage} currentLanguage={this.state.language}   />
                                             </Form.Group>
                                             {/* Name */}
                                             <Form.Group>
@@ -224,16 +242,19 @@ class Popup extends Component {
                                                 <Form.Label>Link</Form.Label>
                                                 <Form.Control type="text" name="link"  value={this.state.link} onChange={e => this.handleAddSheet(e)}/>
                                             </Form.Group>
-                                            <Button variant="primary" type="submit"  disabled={!this.state.name || !this.state.code}>
+                                            <Button variant="success" type="submit"  disabled={!this.state.name || !this.state.code || !this.state.language}>
                                                 {this.state.isEditView ? 'Edit' : 'Add'}
                                             </Button>
                                         </Form>
+                                        <Button variant="danger" type="text" onClick={(e) => this.isRowCancel(e)}  className='mx-2 d-inline'>
+                                            Cancel
+                                        </Button>
                                 </Card.Body>
                             </Accordion.Collapse>
                         </Card>
                     </Accordion>
                 </div>
-                <div className="row mt-3">
+                <div className="row mt-3 list-wrapper d-none">
                     <div className="col-12 mx-auto">
                         <SheetLists lists={this.state.filteredSuggestions.length > 0 ? this.state.filteredSuggestions : this.state.sheets} isRowDeleted={this.isRowDeleted} isRowEdit={this.isRowEdit} isRowCancel={this.isRowCancel}/>
                     </div>
