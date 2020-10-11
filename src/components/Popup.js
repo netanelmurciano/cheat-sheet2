@@ -6,7 +6,6 @@ import {Accordion, Button, Card, Form} from 'react-bootstrap';
 import SheetLists from "./SheetLists";
 import Autocomplete from "./common/Autocomplete";
 
-
 class Popup extends Component {
     constructor(props) {
         super(props);
@@ -20,6 +19,7 @@ class Popup extends Component {
             code: '',
             link: '',
             sheetId: '',
+            userInput: '',
             isEditView: false,
         };
 
@@ -44,7 +44,6 @@ class Popup extends Component {
                         sheets['id'] = doc.id;
                         that.setState({sheets: [...that.state.sheets, sheets]});
                     }
-
                 });
             })
             .catch(function (error) {
@@ -64,18 +63,20 @@ class Popup extends Component {
             });
 
         // Get current tab url
-       /* chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+        chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
             (tabs) => {
-                this.setState({link: tabs[0].url});
-                this.setState({name: tabs[0].title})
+                this.setState({
+                    link: tabs[0].url,
+                    name: tabs[0].title
+                });
             }
-        );*/
+        );
         // If we have copy of text in clipboard we add it to 'code' input
-      /*  if(document.execCommand('paste')) {
+        if(document.execCommand('paste')) {
             let input = document.querySelector("textarea");
             input.focus();
             $('#code').innerText = document.execCommand('paste')
-        }*/
+        }
     }
 
     // Set form values
@@ -94,13 +95,13 @@ class Popup extends Component {
     handleSubmit(e, btnText) {
         let that = this;
         e.preventDefault();
-
         let data = {
             'userId': this.props.userId,
             'language': this.state.language,
             'name': this.state.name,
             'code': this.state.code,
             'link': this.state.link,
+            'timestamp':firebase.firestore.FieldValue.serverTimestamp()
         };
         // If btnText is false we Add new data
         if(!btnText && !this.state.sheetId) {
@@ -109,16 +110,21 @@ class Popup extends Component {
         })
             .then(function (response) {
                 if (response.id) {
+                    that.props.loadNotify('success', 'Row have been added');
                     // Clean state before calling
-                    that.setState({sheets: []});
-                    that.componentDidMount();
+                    that.setState({
+                        sheets: []
+                    });
                     // Close form
                     $('.form-collapse').removeClass('show');
                     // Change icon from minus to plus
                     $('.circle-plus').toggleClass('opened');
                     // Show list
                     $('.list-wrapper').removeClass('d-none');
+                    // Show box search
+                    $('.card-header').removeClass('d-none');
                 }
+                that.componentDidMount();
             })
             .catch(function (error) {
                 console.error("Error adding document: ", error);
@@ -131,15 +137,23 @@ class Popup extends Component {
             }).then((docRef) => {
                 that.setState({
                     sheets: [],
-                    isEditView: false
+                    isEditView: false,
+                    userInput: '',
+                    filteredSuggestions:[]
                 });
-                that.componentDidMount()
+
+                that.props.loadNotify('success', 'Row have been updated');
+
                 // Close form
                 $('.form-collapse').removeClass('show');
                 // Change icon from minus to plus
                 $('.circle-plus').toggleClass('opened');
                 // Show list
                 $('.list-wrapper').removeClass('d-none');
+                // Show box search
+                $('.card-header').removeClass('d-none');
+
+                that.componentDidMount()
             })
                 .catch((error) => {
                     console.error("Error adding document: ", error);
@@ -150,7 +164,14 @@ class Popup extends Component {
     isRowDeleted(item) {
         if(item) {
             // Clean state before data load
-            this.setState({sheets: []});
+            this.setState(
+                {
+                    sheets: [],
+                    filteredSuggestions: [],
+                    userInput: ''
+                });
+
+            this.props.loadNotify('success', 'Row have been deleted');
             this.componentDidMount();
         }
     }
@@ -187,14 +208,24 @@ class Popup extends Component {
 
     // Handle input text changed
     onChange(e) {
+        let userInput = e.target.value;
         // we filter our suggestions list according of what we type in input
         const filteredSuggestions =  this.state.sheets.filter(
             (suggestion) => suggestion.language.toLowerCase().indexOf(e.currentTarget.value.toLowerCase()) > -1
+            || suggestion.name.toLowerCase().indexOf(e.currentTarget.value.toLowerCase()) > -1
         );
         this.setState({
             filteredSuggestions,
+            userInput,
         });
     }
+
+    handleNewLanguageMessage = (row) => {
+        if(row) {
+            this.props.loadNotify('success', 'New language have been added');
+            this.componentDidMount();
+        }
+    };
 
     render() {
         return (
@@ -209,7 +240,7 @@ class Popup extends Component {
                                             type="text"
                                             onChange={(e) => this.onChange(e)}
                                             value={this.state.userInput}
-                                            placeholder="Search language..."
+                                            placeholder="Search tag..."
                                         />
                                     </React.Fragment>
                                 </Accordion.Toggle>
@@ -220,7 +251,7 @@ class Popup extends Component {
                                             {/* Language */}
                                             <Form.Group>
                                                 <Form.Label>Language</Form.Label>
-                                                <Autocomplete suggestions={this.state.languages} selectedSuggestion={this.selectedLanguage} currentLanguage={this.state.language}   />
+                                                <Autocomplete suggestions={this.state.languages} selectedSuggestion={this.selectedLanguage} currentLanguage={this.state.language}  handleNewLanguageMessage={this.handleNewLanguageMessage}  />
                                             </Form.Group>
                                             {/* Name */}
                                             <Form.Group>

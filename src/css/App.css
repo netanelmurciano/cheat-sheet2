@@ -7,25 +7,41 @@ body {
   width: 100%;
   background-color: #fafafa !important;
 
+
+}
+
+a {
+  text-decoration: none;
+  background-color: transparent;
+}
+
+a:hover {
+  text-decoration: none !important;
 }
 
 .main {
-  width: 550px;
+width: 550px;
 }
 
 .xy-align {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-  -o-transform: translate(-50%, -50%);
+position: absolute;
+top: 50%;
+left: 50%;
+-webkit-transform: translate(-50%, -50%);
+-ms-transform: translate(-50%, -50%);
+transform: translate(-50%, -50%);
+-moz-transform: translate(-50%, -50%);
+-o-transform: translate(-50%, -50%);
 }
 
 .text-1 {
-  font-size: 0.875rem; /* 14px*/
+font-size: 0.875rem; /* 14px*/
+}
+.text-color-1 {
+  color: #87c9e6;
+}
+.text-color-2 {
+  color: #878787;
 }
 
 /* Handle the suggestions list */
@@ -108,6 +124,14 @@ body {
 .cursor-pointer{
   cursor: pointer;
 }
+.limit-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-box-orient: vertical;
+}
+
 
 /*button.btn.collapsed:before
 {

@@ -34,7 +34,7 @@ class Autocomplete extends Component {
             filteredSuggestions: [],
             showSuggestions: false,
             userInput: e.currentTarget.innerText
-        })
+        });
         this.props.selectedSuggestion(e.currentTarget.innerText)
     }
 
@@ -42,14 +42,19 @@ class Autocomplete extends Component {
     handleAddLanguage(e) {
         e.preventDefault();
         let that = this;
+        //UpperCase first latter
+        let textInput = this.state.userInput.charAt(0).toUpperCase() + this.state.userInput.slice(1);
+
         this.db.collection("languages").add({
-            'name': this.state.userInput
+            'name': textInput
         })
             .then(function (response) {
                 if (response.id) {
-                    that.setState({userInput: ''});
-                    alert('Language been added');
-                    window.location.reload();
+                    that.setState({
+                        userInput: '',
+                        showSuggestions: false
+                    });
+                    that.props.handleNewLanguageMessage(true);
                 }
             })
             .catch(function (error) {
@@ -80,7 +85,9 @@ class Autocomplete extends Component {
                         type="text"
                         onChange={(e) => this.onChange(e)}
                         name='language'
-                        value={this.state.userInput ? this.state.userInput : this.props.currentLanguage}
+                        value={this.state.userInput.length ? this.state.userInput : this.props.currentLanguage}
+                        autoComplete="off"
+                        maxLength={15}
                     />
                     {suggestionsListComponent}
                 </React.Fragment>

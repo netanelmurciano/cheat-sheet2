@@ -2,10 +2,14 @@
 import React, { Component } from 'react';
 import "../css/App.css";
 import "../css/google-btn.css";
-import "../css/bootstrap.css";
+import "../css/btn.css";
 import Popup from "./Popup";
 import Login from "./Login";
 import $ from "jquery";
+import 'react-toastify/dist/ReactToastify.css';
+import Notify from "./common/Notify";
+import ModalSignOut from './ModalSignOut'
+import ModalMessage from "./ModalMessage";
 
 class App extends Component {
    constructor() {
@@ -13,7 +17,10 @@ class App extends Component {
 
        this.state = {
            userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : false,
-           isLoginClicked: false
+           isLoginClicked: false,
+           showNoti: false,
+           notiType: '',
+           show: false
        };
 
       this.handleClickLogin = this.handleClickLogin.bind(this);
@@ -49,11 +56,21 @@ class App extends Component {
        });
    }
 
+    handleOpenModal = (e) => {
+        this.setState({
+            show: true
+        });
+    };
+    handleClose = () => {
+        this.setState({
+            show: false,
+        });
+    };
+
     // Sign out
-    handleSignOut(e) {
+    handleSignOut() {
        if(localStorage.getItem('gToken')) {
            let token = localStorage.getItem('gToken');
-           if(window.confirm('Are you sure you want to sign out?')) {
                // we logout from app
                window.fetch('https://accounts.google.com/o/oauth2/revoke?token=' + token);
                // we clean the token from chrome
@@ -65,7 +82,6 @@ class App extends Component {
                localStorage.removeItem('gToken');
                localStorage.removeItem('userInfo');
                window.location.reload();
-           }
        }
     }
 
@@ -85,7 +101,7 @@ class App extends Component {
     }
 
    loadTemplate() {
-       if(localStorage.getItem('gToken')) {
+       if(!localStorage.getItem('gToken')) {
            return (
                <div className="row main">
                    <Login handleClickLogin={this.handleClickLogin} />
@@ -94,6 +110,7 @@ class App extends Component {
        }
        return (
            <div className="row main">
+               {this.state.show ? this.loadModal() : ''}
                <div className="col-12">
                    <div className="row">
                        <div className="col-6">
@@ -104,19 +121,47 @@ class App extends Component {
                                </div>
                            </div>
                        </div>
-                       <div className="col-6 text-right align-self-center" onClick={e => this.handleSignOut(e)}>
+                       <div className="col-6 text-right align-self-center" onClick={e => this.handleOpenModal(e)}>
                            <i className="fa fa-sign-out fa-1x" aria-hidden="true"></i>
                        </div>
                    </div>
                </div>
-               <Popup userId={this.state.userInfo.id}/>
+               <Popup userId={this.state.userInfo.id} loadNotify={this.loadNotify}/>
            </div>
        )
    }
 
+    loadModal = () => {
+        return(
+            <ModalSignOut show={this.state.show} handleClose={this.handleClose} handleSignOut={this.handleSignOut}  />
+        )
+    };
+
+    loadNotify = (type, message) => {
+       if(type) {
+           this.setState({
+               showNoti: true,
+               notiType: {type},
+               notiMessage: {message},
+           }, () => {
+               setTimeout(() => {
+                   this.setState({showNoti: false})
+               },2000)
+           })
+       }
+   };
   render() {
     return (
         <div className="container">
+            {
+                this.state.showNoti ?
+                    <Notify
+                        type={this.state.notiType}
+                        message={this.state.notiMessage}
+                    />
+                    :
+                    ''
+            }
             {this.loadTemplate()}
         </div>
     );
